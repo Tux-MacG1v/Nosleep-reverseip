@@ -61,7 +61,7 @@ headers = {
 def reverseip(i):
 	global GOOD, BAD, FAILED
 	try:
-		grab = urllib.request.urlopen('https://apifromtuxdemo.herokuapp.com/'+ i, timeout=2000).read()
+		grab = urllib.request.urlopen('https://apifromtuxdemo1.herokuapp.com/'+ i, timeout=2000).read()
 		html = grab.decode('ISO-8859-1')
 		if not "null" in html:
 			res = re.findall('"(.*?)"', html)
