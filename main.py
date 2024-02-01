@@ -1,109 +1,55 @@
-#!/usr/bin/env python3
-# Coded By Tux-MacG1v
-#https://t.me/I_am_a_silent_killer
-#https://www.facebook.com/tux.macg1v
-#DONATE ME:
-#  TRC20 - TEd4f33f2c2AVGaB14VFCZbVLCe9hirNtK
-#  BTC -  1KP3ekYeQGNVpMJr8P4hwwPPQ5sFP4h2Xb
+import requests,re
+from fake_useragent import UserAgent
+from multiprocessing import Pool
 
-import re
-import os.path
-import string
-import os
-import sys
-import time
-import urllib.request
-from platform import system
-import warnings
-from concurrent.futures import ThreadPoolExecutor
-from importlib import reload
-from colorama import init, Fore, Style
-from urllib3.exceptions import InsecureRequestWarning
-warnings.simplefilter('ignore', InsecureRequestWarning)
-init(autoreset=True)
-#try:
-#	os.mkdir('Result') #createfolder
-#	os.getcwd()
-#except:
-#	pass
+class Ipto():
+	def __init__(  self , ip , proxy = None ,  browser = UserAgent().random ):
+		self.ip = ip
+		self.website = "https://domains.tntcode.com/ip/%s" % ip
+		self.browser = browser
 
-reload(sys)
-r = Fore.RED + Style.BRIGHT
-g = Fore.GREEN + Style.BRIGHT
-c = Fore.CYAN + Style.BRIGHT
-y = Fore.YELLOW + Style.BRIGHT
-o = Fore.RESET + Style.RESET_ALL
+	def __action_to(  self ):
+		Headers = {"User-Agent": self.browser,
+						"Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+									"Accept-Language": "en-US,en;q=0.5", "Accept-Encoding": "gzip, deflate",
+														"Origin": "https://127.0.0.1", "Connection": "close", "DNT": "1",
+																	"Expires": "Null","Referer": "https://127.0.0.1"}
+		res = requests.get(self.website  , headers= Headers ).text
+		return re.findall( '<a href="/domain/(.+?)"' , res )
+		
+	def domains_list( self ):
+		return self.__action_to()
+		
+		
+def findandsave(ip , trys=False):
+	for x in range(5):
+		try:
+			list = Ipto(ip).domains_list()
+			if list:
+				[ open("domains.txt",  "a"  , encoding="Latin-1").write("%s\n" % bb ) for bb in list  ]
+				print("From this ip ==> %s saved %s domains "  % ( ip  , len(list)     ) )
+				break
+		except:
+			time.sleep(20)
+			pass
 
-good=[]
-bad=[]
-failed =[]
-GOOD = 0
-BAD = 0
-FAILED = 0
-
-os.system("title " + "[+] GOOD:  {} , [-]BAD : {}  , [!]FAILED : {}  ".format(GOOD, BAD, FAILED))
-
-
-banner = """
-
-               {}[!] {}NOSLEP-DEMO {} - {}REVERSE IP{}
-                    {}CODED BY TUX-MACG1V{}
-	      {}FOR BUY MAIN TOOL CONTACT WITH ME{}
-              {}https://t.me/I_am_a_silent_killer{}
-	      {}TRC20-  TEd4f33f2c2AVGaB14VFCZbVLCe9hirNtK
-	      BTC -  1KP3ekYeQGNVpMJr8P4hwwPPQ5sFP4h2Xb{}
-
-
-""".format(r, g, y, g, o, r, o, y, o, r, o, g, o)
-headers = {
-    'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-
-def reverseip(i):
-	global GOOD, BAD, FAILED
-	try:
-		grab = urllib.request.urlopen('https://apifromtuxdemo1.herokuapp.com/'+ i, timeout=2000).read()
-		html = grab.decode('ISO-8859-1')
-		if not "null" in html:
-			res = re.findall('"(.*?)"', html)
-			print('{}[+] {}Reverse {}http://{} {}[{} {} {}DOMAINS]{}'.format(g, c, y, i, g, r, len(str(res)), g, o))
-			for domain in res:
-				open('Domains.txt', "a+").write(str(domain)+'\n')
-				good.append(i)
-				GOOD += 1
-				
-		else:
-			print('{}[-] {}Reverse {}http://{} {}[{} NO DOMAIN {}]{}'.format(r, c, y, i, g, r, g, r, o))
-			bad.append(i)
-			BAD += 1
-	except KeyboardInterrupt:
-		print('{}[-] {}Reverse {}http://{} {}[{} API FAILED OR WRONG {}]{}'.format(r, c, y, i, g, r, g, r, o))
-		failed.append(i)
-		FAILED += 1
-		time.sleep(0.5)
-		sys.exit()
 
 def main():
+	
+	smiya = input("[x] list ip : " )
+	
 	try:
-		os.system('cls' if os.name == 'nt' else 'clear')
-		print(banner)
-		lists = input('\n{}[+] {}Website List{} > {}'.format(c, g, o, g).strip())
-		power = int(input('{}[+] {}Thread{} > {}'.format(c, g, o, r, r)))
-		print('')
+		listip = open( smiya , "r" , encoding="Latin-1" ).read().splitlines()
+	except:
+		try:
+			listip = open( smiya , "r" , encoding="utf-8" ).read().splitlines()
+		except:
+			print("List Problem !")
+			exit()
 
-		def runner():
-			threads = []
-			domain = lists.replace('"', '')
-			process = open(domain, 'r').read().splitlines()
-			with ThreadPoolExecutor(max_workers=power) as thread:
-				[threads.append(thread.submit(reverseip, i)) for i in process]
+	ThreadPool = Pool(50)
+	ThreadPool.map(findandsave, listip)
 
-		runner()
-		print("\n\n{}[+] TOTAL GOODS {}:{}[{}{}{}]{}".format(g, o, g, o, str(len(good)), g, o))
-		print("{}[-] TOTAL BADS {}:{}[{}{}{}]{}".format(c, o, c, o, str(len(bad)), r, o))
-		print("{}[!] TOTAL FAILED {}:{}[{}{}{}]{}".format(r, o, r, o, str(len(failed)), r, o))
-	except Exception as e:
-		print('{}[!] {}Incorrect'.format(c, r))
-		time.sleep(0.5)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	main()
